@@ -80,6 +80,7 @@ Known current behavior:
 python f0_estimation/examples/open_string_check.py --method swiftf0
 python f0_estimation/examples/open_string_check.py --method pyin
 python f0_estimation/examples/open_string_check.py --method autocorr
+python f0_estimation/examples/open_string_check.py --method crepe
 ```
 
 The tracked violin validation clips are:

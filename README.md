@@ -36,6 +36,7 @@ MusicXML2MIDI/
   requirements.txt
 
 dtw/
+  align_demo.py
   main.py
   *.mxl
 
@@ -122,14 +123,13 @@ python musicxml_to_violin_audio.py
 
 This parses MusicXML with `music21`, writes MIDI, and renders WAV with FluidSynth. This path is functional but still needs a cleaner command-line interface and a better curated short demo score.
 
-## Run The DTW Prototype
+## Run The DTW Alignment Demo
 
 ```powershell
-cd dtw
-python main.py
+python dtw/align_demo.py --score MusicXML2MIDI/musicxml/DemoTwinkleShort.musicxml --mode synthetic --plot
 ```
 
-The DTW path is an exploratory prototype. It is useful for documenting score-audio alignment work, but it is not yet the primary interview demo.
+The primary DTW demo uses the same short `DemoTwinkleShort.musicxml` fixture as `MusicXML2MIDI`. It parses score events, generates or loads a performed F0 contour, runs DTW, and writes per-note feedback to `dtw/output/`. The older `dtw/main.py` and Bach files are kept as legacy prototype material.
 
 ## Documentation
 

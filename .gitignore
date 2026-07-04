@@ -1,0 +1,35 @@
+# Python caches and local tooling
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Environments
+.venv/
+venv/
+env/
+.env
+.env.*
+
+# Generated analysis outputs
+*.csv
+!dtw/bach-violin-dataset-v1.0/**/*.csv
+!dtw/bach-violin-dataset-v1.0/**/README.md
+MusicXML2MIDI/output/
+
+# Large or external audio/model assets
+*.wav
+*.mp3
+*.m4a
+*.opus
+*.flac
+*.sf2
+*.zip
+
+# Keep small local F0 demo clips in the repository.
+!f0_estimation/data/*.wav
+
+# Large extracted datasets should be downloaded/restored outside git.
+dtw/bach-violin-dataset-v1.0/

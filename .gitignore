@@ -17,6 +17,7 @@ env/
 *.csv
 !dtw/bach-violin-dataset-v1.0/**/*.csv
 !dtw/bach-violin-dataset-v1.0/**/README.md
+f0_estimation/outputs/
 MusicXML2MIDI/output/
 
 # Large or external audio/model assets

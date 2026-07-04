@@ -22,17 +22,14 @@ Current outputs:
 
 - Per-frame timestamp in seconds.
 - Per-frame F0 in Hz.
+- CSV export with `time_s`, `f0_hz`, `nearest_note`, `cents_error`.
+- JSON export with audio metadata, estimator, voicing rate, F0 percentiles, intonation metrics, onset count, and phrase count.
+- Optional PNG plot with waveform, F0 contour, and cents error.
 - Compact median/p05/p95 F0 summary.
 - Reference-free intonation percentages within +/-25, +/-50, and +/-100 cents.
 - Nearest equal-tempered note labels.
 - Onset times.
 - Phrase boundaries.
-
-Planned outputs:
-
-- CSV with `time_s`, `f0_hz`, `nearest_note`, `cents_error`.
-- JSON summary with estimator, audio metadata, voicing rate, intonation metrics, onset count, and phrase count.
-- Optional PNG plot for interview demos.
 
 ## Estimator Contract
 
@@ -73,7 +70,8 @@ Current smoke test:
 
 ```powershell
 conda activate musicdsp
-python f0_estimation/main.py --method swiftf0 --skip-onsets
+python f0_estimation/main.py --method swiftf0 --csv f0_estimation/outputs/A_STRING_swiftf0.csv --json f0_estimation/outputs/A_STRING_swiftf0.json --plot f0_estimation/outputs/A_STRING_swiftf0.png
+python f0_estimation/main.py --audio f0_estimation/data/E_STRING.wav --method swiftf0 --csv f0_estimation/outputs/E_STRING_swiftf0.csv --json f0_estimation/outputs/E_STRING_swiftf0.json --plot f0_estimation/outputs/E_STRING_swiftf0.png
 python f0_estimation/examples/open_string_check.py --method swiftf0
 python f0_estimation/examples/open_string_check.py --method pyin
 python f0_estimation/examples/open_string_check.py --method autocorr
@@ -97,8 +95,6 @@ Current observed open-string medians:
 
 ## Known Limitations
 
-- CSV/JSON exports are not implemented yet.
-- Diagnostic plots are not implemented yet.
 - Fine-grained estimator parameters are not exposed as command-line arguments.
 - Reference-free cents can look good even if the played note is wrong relative to a score.
 - Onset detection needs tuning per exercise type.

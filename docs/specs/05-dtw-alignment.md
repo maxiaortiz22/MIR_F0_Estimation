@@ -20,6 +20,8 @@ The old long-form Bach prototype is intentionally not part of the tracked demo p
   - `synthetic`: deterministic F0 generated from the score events.
   - `f0-csv`: experimental CSV from the F0 estimator.
 
+The DTW demo does not run an F0 estimator internally. Estimator choice happens upstream in `f0_estimation/main.py` via `--method` when generating the CSV. The F0 module currently supports `autocorr`, `pyin`, `crepe`, and `swiftf0`, with `swiftf0` as its default CLI method.
+
 Supported F0 CSV schemas:
 
 - `time_s,f0_hz` from `f0_estimation/main.py`
@@ -97,6 +99,7 @@ python dtw/align_demo.py --score MusicXML2MIDI/musicxml/DemoTwinkleShort.musicxm
 Experimental F0 CSV mode:
 
 ```powershell
+python f0_estimation/main.py --audio f0_estimation/data/TwinkleTwinkleLittleStar.wav --method swiftf0 --csv f0_estimation/outputs/TwinkleTwinkleLittleStar_swiftf0.csv
 python dtw/align_demo.py --mode f0-csv --score MusicXML2MIDI/musicxml/DemoTwinkleShort.musicxml --f0-csv f0_estimation/outputs/TwinkleTwinkleLittleStar_swiftf0.csv --plot
 ```
 

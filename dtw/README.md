@@ -34,13 +34,25 @@ The default score is already `DemoTwinkleShort.musicxml`, so this shorter comman
 python dtw/align_demo.py --mode synthetic --plot
 ```
 
-Experimental F0 CSV mode:
+Synthetic mode does not run an F0 estimator. It creates a deterministic performed F0 contour directly from the score events so the alignment can be demonstrated without audio.
+
+## Choosing An F0 Estimator
+
+The DTW script does not estimate F0 from audio yet. To choose an estimator, first export a CSV with the F0 module:
+
+```powershell
+python f0_estimation/main.py --audio f0_estimation/data/TwinkleTwinkleLittleStar.wav --method swiftf0 --csv f0_estimation/outputs/TwinkleTwinkleLittleStar_swiftf0.csv
+python f0_estimation/main.py --audio f0_estimation/data/TwinkleTwinkleLittleStar.wav --method pyin --csv f0_estimation/outputs/TwinkleTwinkleLittleStar_pyin.csv
+python f0_estimation/main.py --audio f0_estimation/data/TwinkleTwinkleLittleStar.wav --method autocorr --csv f0_estimation/outputs/TwinkleTwinkleLittleStar_autocorr.csv
+```
+
+Then pass that CSV to the experimental F0 CSV mode:
 
 ```powershell
 python dtw/align_demo.py --mode f0-csv --score MusicXML2MIDI/musicxml/DemoTwinkleShort.musicxml --f0-csv f0_estimation/outputs/TwinkleTwinkleLittleStar_swiftf0.csv --plot
 ```
 
-The F0 CSV reader accepts either `time_s,f0_hz` from the current F0 estimator or `t,f0_hz` from the older DTW prototype.
+The F0 CSV reader accepts either `time_s,f0_hz` from the current F0 estimator or `t,f0_hz` from simple external F0 exports. The estimator name is not inferred by DTW; it is chosen when generating the CSV.
 
 ## Outputs
 

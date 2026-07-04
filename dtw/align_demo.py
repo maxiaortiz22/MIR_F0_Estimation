@@ -459,6 +459,7 @@ def write_summary_json(
     path_cost: float,
     output_paths: dict[str, Path],
     f0_csv_path: Path | None,
+    f0_source_note: str,
 ) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     finite_onsets = [abs(metric.onset_error_ms) for metric in metrics if metric.onset_error_ms is not None]
@@ -475,7 +476,12 @@ def write_summary_json(
             "duration_s": max(event.expected_end_s for event in events),
             "tempo_marks": [{"quarter_offset": offset, "bpm": bpm} for offset, bpm in tempo_marks],
         },
-        "f0_csv": str(f0_csv_path) if f0_csv_path is not None else None,
+        "performance_f0": {
+            "source": mode,
+            "csv_path": str(f0_csv_path) if f0_csv_path is not None else None,
+            "estimator": None,
+            "note": f0_source_note,
+        },
         "alignment": {
             "dtw_path_cost": path_cost,
             "median_abs_onset_error_ms": float(np.median(finite_onsets)) if finite_onsets else None,
@@ -575,11 +581,16 @@ def main(argv: list[str] | None = None) -> int:
 
         if args.mode == "synthetic":
             performance_times, performance_hz, _ = build_synthetic_performance(events, hop_s=args.hop_s)
+            f0_source_note = "Synthetic mode generates deterministic F0 from score events; no F0 estimator is used."
         else:
             if f0_csv_path is None:
                 raise CliError("--f0-csv is required when --mode f0-csv")
             raw_times, raw_f0 = read_f0_csv(f0_csv_path)
             performance_times, performance_hz = resample_previous(raw_times, raw_f0, hop_s=args.hop_s)
+            f0_source_note = (
+                "F0 CSV mode reads a precomputed contour. Choose the estimator upstream with "
+                "f0_estimation/main.py --method, then pass the exported CSV here."
+            )
 
         path_cost, alignment_path = run_dtw(
             performance_times,
@@ -618,10 +629,14 @@ def main(argv: list[str] | None = None) -> int:
             path_cost=path_cost,
             output_paths=output_paths,
             f0_csv_path=f0_csv_path,
+            f0_source_note=f0_source_note,
         )
 
         print("=== DTW Alignment Demo ===")
         print(f"Mode: {args.mode}")
+        print(f"Performance F0: {f0_source_note}")
+        if f0_csv_path is not None:
+            print(f"F0 CSV: {f0_csv_path}")
         print(f"Score: {score_path}")
         print(f"Notes: {len(events)} | score duration: {max(event.expected_end_s for event in events):.2f}s")
         print("Tempo marks: " + ", ".join(f"{bpm:g} BPM @ ql={offset:g}" for offset, bpm in tempo_marks))

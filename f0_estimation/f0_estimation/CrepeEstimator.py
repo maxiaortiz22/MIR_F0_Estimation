@@ -5,10 +5,17 @@ import librosa
 
 
 class CrepeEstimator(BaseF0Estimator):
-    def __init__(self, step_size_ms: int = 10, model_capacity: str = "full", viterbi: bool = True):
+    def __init__(
+        self,
+        step_size_ms: int = 10,
+        model_capacity: str = "full",
+        viterbi: bool = True,
+        confidence_threshold: float = 0.5,
+    ):
         self.step_size_ms = step_size_ms
         self.model_capacity = model_capacity  # 'tiny', 'small', 'medium', 'large', 'full'
         self.viterbi = viterbi
+        self.confidence_threshold = confidence_threshold
 
     def estimate(self, y: np.ndarray, sr: int) -> F0Result:
         crepe = importlib.import_module("crepe")  # raise if missing
@@ -30,4 +37,5 @@ class CrepeEstimator(BaseF0Estimator):
             model_capacity=self.model_capacity,
             viterbi=self.viterbi,
         )
+        frequency_hz = np.where(confidence >= self.confidence_threshold, frequency_hz, np.nan)
         return F0Result(f0_hz=frequency_hz.astype(float), times_s=time_s.astype(float))

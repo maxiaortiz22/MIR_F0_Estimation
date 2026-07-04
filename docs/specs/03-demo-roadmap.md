@@ -2,7 +2,7 @@
 
 ## Demo 1: F0 And Intonation
 
-Status: strongest current demo.
+Status: strongest current demo. Open-string validation is now in place for A4 and E5.
 
 Goal:
 
@@ -10,10 +10,9 @@ Show a short violin recording, estimate F0, compute intonation metrics, detect o
 
 Next implementation slice:
 
-- Add root-level CLI.
-- Add `--audio`, `--method`, `--summary-only`, `--csv`, and `--plot` options.
-- Print a concise summary by default.
-- Keep verbose per-frame output behind a flag.
+- Add `--csv`, `--json`, and `--plot` options.
+- Add a root-level package entrypoint after the script API stabilizes.
+- Add regression tests around the open-string checks.
 
 ## Demo 2: MusicXML To Reference Audio
 

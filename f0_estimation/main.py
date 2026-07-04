@@ -1,138 +1,127 @@
 #!/usr/bin/env python3
-"""
-F0 Toolkit – OOP prototype for violin (or monophonic instrument) audio.
-
-Implements a common interface with multiple estimators:
-- Autocorrelation (classic time‑domain approach)
-- pYIN (librosa)
-- CREPE (deep learning)
-- SwiftF0 (fast DL pitch; optional dependency)
-
-Notes:
-- Output prints timestamp (s) and F0 (Hz) per analysis frame.
-- pYIN needs librosa>=0.8; CREPE needs the 'crepe' package.
-- SwiftF0 is optional; this wrapper tries common packages and will guide you if missing.
-"""
 from __future__ import annotations
 
+import argparse
 import sys
-from typing import Tuple, Optional
+from pathlib import Path
 
 import numpy as np
-import soundfile as sf
-import librosa
 
-from f0_estimation.AutocorrEstimator import AutocorrEstimator
-from f0_estimation.PyYINEstimator import PyYINEstimator
-from f0_estimation.CrepeEstimator import CrepeEstimator
-from f0_estimation.SwiftF0Estimator import SwiftF0Estimator
-from f0_estimation.BaseF0Estimator import BaseF0Estimator
+from f0_estimation.AudioIO import load_audio_mono
+from f0_estimation.EstimatorFactory import create_estimator
+from f0_estimation.Intonation import compute_intonation_metrics, hz_to_midi, midi_to_note_name
 from f0_estimation.OnsetPhraseSegmenter import OnsetPhraseSegmenter
-from f0_estimation.Intonation import (
-    compute_intonation_metrics,
-    midi_to_note_name,
-    hz_to_midi,
-)
 
 
-class EstimatorFactory:
-    @staticmethod
-    def create(name: str) -> BaseF0Estimator:
-        key = name.lower()
-        if key in {"autocorr", "autocorrelation"}:
-            return AutocorrEstimator()
-        if key in {"pyin", "p_yin"}:
-            return PyYINEstimator()
-        if key == "crepe":
-            return CrepeEstimator()
-        if key in {"swiftf0", "swift_f0", "swift"}:
-            return SwiftF0Estimator()
-        raise ValueError(f"Unknown method '{name}'. Use one of: autocorr, pyin, crepe, swiftf0")
+DEFAULT_AUDIO = Path(__file__).resolve().parent / "data" / "A_STRING.wav"
 
 
-def load_audio_mono(path: str, sr: Optional[int] = None) -> Tuple[np.ndarray, int]:
-    """Load audio as mono float waveform using soundfile/librosa fallback."""
-    # Prefer soundfile if available for FLAC/WAV
-    if sf is not None:
-        y, file_sr = sf.read(path, always_2d=False)
-        if y.ndim > 1:
-            y = y.mean(axis=1)
-        if sr is not None and file_sr != sr:
-            y = librosa.resample(y.astype(float), orig_sr=file_sr, target_sr=sr)
-            final_sr = sr
+def summarize_f0(f0_hz: np.ndarray) -> dict[str, float]:
+    valid = f0_hz[np.isfinite(f0_hz)]
+    if valid.size == 0:
+        return {
+            "voiced_frames": 0,
+            "voicing_rate_pct": 0.0,
+            "median_hz": float("nan"),
+            "p05_hz": float("nan"),
+            "p95_hz": float("nan"),
+        }
+    return {
+        "voiced_frames": int(valid.size),
+        "voicing_rate_pct": float(100.0 * valid.size / f0_hz.size),
+        "median_hz": float(np.median(valid)),
+        "p05_hz": float(np.percentile(valid, 5)),
+        "p95_hz": float(np.percentile(valid, 95)),
+    }
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Estimate F0, intonation, onsets, and phrases for violin audio.")
+    parser.add_argument("--audio", default=str(DEFAULT_AUDIO), help="Path to a mono/stereo WAV file.")
+    parser.add_argument(
+        "--method",
+        default="swiftf0",
+        choices=["autocorr", "pyin", "crepe", "swiftf0"],
+        help="F0 estimator to use.",
+    )
+    parser.add_argument("--sr", type=int, default=None, help="Optional target sample rate.")
+    parser.add_argument("--print-frames", action="store_true", help="Print every voiced analysis frame.")
+    parser.add_argument("--print-unvoiced", action="store_true", help="Include unvoiced frames when printing frames.")
+    parser.add_argument("--skip-onsets", action="store_true", help="Skip onset and phrase analysis.")
+    parser.add_argument("--skip-intonation", action="store_true", help="Skip reference-free intonation metrics.")
+    parser.add_argument("--max-frame-lines", type=int, default=40, help="Maximum frame lines printed with --print-frames.")
+    return parser
+
+
+def print_frame_table(times_s: np.ndarray, f0_hz: np.ndarray, max_lines: int, print_unvoiced: bool) -> None:
+    printed = 0
+    for t, f0 in zip(times_s, f0_hz):
+        if not np.isfinite(f0):
+            if print_unvoiced:
+                print(f"t={t:8.3f}s : F0 = NaN")
+                printed += 1
         else:
-            final_sr = file_sr
-        y = y.astype(np.float32)
-        return y, final_sr
-    # Fallback to librosa loader
-    y, file_sr = librosa.load(path, sr=sr, mono=True)
-    return y.astype(np.float32), (sr or file_sr)
+            note = midi_to_note_name(float(hz_to_midi(np.array([f0]))[0]))
+            print(f"t={t:8.3f}s : F0 = {f0:8.2f} Hz -> {note}")
+            printed += 1
+        if printed >= max_lines:
+            remaining = len(f0_hz) - printed
+            if remaining > 0:
+                print(f"... truncated after {printed} frame lines")
+            break
 
 
-def main():
-    # Variables
-    AUDIO_PATH = "data/HB-1.wav"  # <- audio file path
-    METHOD = "swiftf0"                     # <- 'autocorr', 'pyin', 'crepe', 'swiftf0'
-    SR = None                           # <- sr number or None to respect the audio file's sr
-    PRINT_UNVOICED = False              # <- True to print unvoiced frames (NaN)
-    RUN_DEMO_ONSETS = True              # <- True to run the onset and phrase demo
-    RUN_DEMO_INTONATION = True          # <- True to run the intonation demo
-
-    y, sr = load_audio_mono(AUDIO_PATH, sr=SR)
-    estimator = EstimatorFactory.create(METHOD)
+def main(argv: list[str] | None = None) -> int:
+    args = build_parser().parse_args(argv)
+    audio_path = Path(args.audio)
 
     try:
+        y, sr = load_audio_mono(audio_path, sr=args.sr)
+        estimator = create_estimator(args.method)
         result = estimator.estimate(y, sr)
-    except ModuleNotFoundError as e:
-        print(f"ERROR: Missing dependency for {METHOD}: {e}. Please install the required package.")
-        sys.exit(2)
-    except RuntimeError as e:
-        print(f"ERROR: {e}")
-        sys.exit(2)
+    except (FileNotFoundError, ModuleNotFoundError, RuntimeError, ValueError) as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
 
-    # Pretty print
-    print(f"Method: {METHOD}")
-    print(f"Frames: {len(result.f0_hz)}, SR: {sr}")
-    for t, f0 in zip(result.times_s, result.f0_hz):
-        if np.isnan(f0):
-            if PRINT_UNVOICED:
-                print(f"t={t:8.3f}s : F0 = NaN")
-            continue
-        print(f"t={t:8.3f}s : F0 = {f0:8.2f} Hz")
+    summary = summarize_f0(result.f0_hz)
+    print("=== F0 Demo ===")
+    print(f"Audio: {audio_path}")
+    print(f"Method: {args.method}")
+    print(f"Sample rate: {sr} Hz")
+    print(f"Frames: {len(result.f0_hz)}")
+    print(f"Voiced frames: {summary['voiced_frames']} ({summary['voicing_rate_pct']:.1f}%)")
+    print(
+        "F0 median/p05/p95: "
+        f"{summary['median_hz']:.2f} / {summary['p05_hz']:.2f} / {summary['p95_hz']:.2f} Hz"
+    )
 
-    # Demos
-    if RUN_DEMO_ONSETS:
-        print("\n=== Demo 2) Onsets & Phrases ===")
-        # onset_delta: higher = less sensitive (default 0.07 is too sensitive for violin)
-        # onset_wait:  minimum frames between onsets (avoids close false positives)
-        seg = OnsetPhraseSegmenter(
-            sr=sr,
-            hop_length=512,
-            onset_delta=0.6,   # <- increase for sustained notes (try 0.2-0.5)
-            onset_wait=30,     # <- min frames between onsets (~0.35s at sr=44100)
-        )
+    if np.isfinite(summary["median_hz"]):
+        median_midi = float(hz_to_midi(np.array([summary["median_hz"]]))[0])
+        print(f"Median nearest note: {midi_to_note_name(median_midi)}")
+
+    if args.print_frames:
+        print("\n=== Frames ===")
+        print_frame_table(result.times_s, result.f0_hz, args.max_frame_lines, args.print_unvoiced)
+
+    if not args.skip_onsets:
+        print("\n=== Onsets & Phrases ===")
+        seg = OnsetPhraseSegmenter(sr=sr, hop_length=512, onset_delta=0.6, onset_wait=30)
         onsets = seg.detect_onsets(y)
         phrases = seg.segment_phrases(y, method="silence", top_db=40.0)
         print("Onsets (s):", np.round(onsets, 3))
-        print("Phrases (s):")
-        for (a, b) in phrases:
-            print(f"  [{a:.3f}, {b:.3f}]  dur={b-a:.3f}s")
+        print("Phrases:")
+        for start_s, end_s in phrases:
+            print(f"  [{start_s:.3f}, {end_s:.3f}] dur={end_s - start_s:.3f}s")
 
-    if RUN_DEMO_INTONATION:
-        print("\n=== Demo 3) Intonation (reference-free) ===")
+    if not args.skip_intonation:
+        print("\n=== Reference-Free Intonation ===")
         metrics = compute_intonation_metrics(result.f0_hz)
-        print("Intonation score (reference-free):")
-        print(f"  within ±25c:  {metrics.pct_within_25:5.1f}%")
-        print(f"  within ±50c:  {metrics.pct_within_50:5.1f}%")
-        print(f"  within ±100c: {metrics.pct_within_100:5.1f}%")
-        # Filter valid (non-NaN) frames first, then take first 10
-        valid_samples = [
-            (t, hz, c)
-            for t, hz, c in zip(result.times_s, result.f0_hz, metrics.cents)
-            if not np.isnan(hz)
-        ]
-        for t, hz, c in valid_samples[:len(valid_samples)]: # [:10] , [:len(valid_samples)]
-            note = midi_to_note_name(hz_to_midi(np.array([hz]))[0])
-            print(f"t={t:7.3f}s  f0={hz:7.2f} Hz  err={c:6.1f} cents -> nearest={note}")
+        print(f"within +/-25c:  {metrics.pct_within_25:5.1f}%")
+        print(f"within +/-50c:  {metrics.pct_within_50:5.1f}%")
+        print(f"within +/-100c: {metrics.pct_within_100:5.1f}%")
+
+    return 0
+
+
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

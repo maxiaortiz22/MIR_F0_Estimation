@@ -63,17 +63,32 @@ Some optional demos require external binaries or assets:
 ## Run The Current F0 Demo
 
 ```powershell
-cd f0_estimation
-python main.py
+python f0_estimation/main.py --method swiftf0
 ```
 
-The current demo estimates F0 with SwiftF0, prints the contour, detects onsets/phrases, and computes reference-free intonation metrics against the nearest equal-tempered note.
+The current demo estimates F0 with SwiftF0, summarizes the contour, detects onsets/phrases, and computes reference-free intonation metrics against the nearest equal-tempered note.
 
 Known current behavior:
 
-- Parameters are still edited inside `main.py`.
-- The output is intentionally verbose while the prototype is being inspected.
-- The next step is to expose a clean root-level CLI with summary, CSV, and plot options.
+- The default clip is `f0_estimation/data/A_STRING.wav`, a violin open A string.
+- Per-frame output is available with `--print-frames`.
+- The next step is to add CSV/JSON and plot outputs for interview demos.
+
+## Validate Open-String Examples
+
+```powershell
+python f0_estimation/examples/open_string_check.py --method swiftf0
+python f0_estimation/examples/open_string_check.py --method pyin
+python f0_estimation/examples/open_string_check.py --method autocorr
+python f0_estimation/examples/open_string_check.py --method crepe
+```
+
+The tracked violin validation clips are:
+
+- `A_STRING.wav`: expected A4, 440.00 Hz.
+- `E_STRING.wav`: expected E5, 659.26 Hz.
+
+The former `HB-*` clips were removed because they were not violin recordings.
 
 ## Run The MusicXML Prototype
 
@@ -101,6 +116,7 @@ The SDD notes live in [docs/specs](docs/specs). Start with:
 - [Current Architecture](docs/specs/01-current-architecture.md)
 - [F0 Pipeline Spec](docs/specs/02-f0-pipeline.md)
 - [Demo Roadmap](docs/specs/03-demo-roadmap.md)
+- [F0 Review](docs/specs/04-f0-review.md)
 
 ## Near-Term Goals
 

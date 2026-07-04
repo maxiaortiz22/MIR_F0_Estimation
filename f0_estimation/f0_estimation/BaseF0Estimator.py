@@ -1,14 +1,12 @@
-from dataclasses import dataclass
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+
 import numpy as np
 
-# ------------------------------
-# Base estimator interface
-# ------------------------------
 
 @dataclass
 class F0Result:
-    f0_hz: np.ndarray  # shape: (n_frames,) – NaN or 0.0 indicates unvoiced/unknown
+    f0_hz: np.ndarray  # shape: (n_frames,), NaN indicates unvoiced/unknown
     times_s: np.ndarray  # shape: (n_frames,)
 
 

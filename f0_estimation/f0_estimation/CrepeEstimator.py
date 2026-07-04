@@ -1,17 +1,35 @@
 from .BaseF0Estimator import BaseF0Estimator, F0Result
+import os
 import numpy as np
 import importlib
 import librosa
 
 
 class CrepeEstimator(BaseF0Estimator):
-    def __init__(self, step_size_ms: int = 10, model_capacity: str = "full", viterbi: bool = True):
+    def __init__(
+        self,
+        step_size_ms: int = 10,
+        model_capacity: str = "full",
+        viterbi: bool = True,
+        confidence_threshold: float = 0.5,
+        verbose: int = 0,
+    ):
         self.step_size_ms = step_size_ms
         self.model_capacity = model_capacity  # 'tiny', 'small', 'medium', 'large', 'full'
         self.viterbi = viterbi
+        self.confidence_threshold = confidence_threshold
+        self.verbose = verbose
 
     def estimate(self, y: np.ndarray, sr: int) -> F0Result:
-        crepe = importlib.import_module("crepe")  # raise if missing
+        try:
+            os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
+            crepe = importlib.import_module("crepe")
+        except ModuleNotFoundError as exc:
+            raise ModuleNotFoundError(
+                "CrepeEstimator requires the optional 'crepe' package. "
+                "Activate the musicdsp environment or install it with: pip install crepe"
+            ) from exc
+
         # CREPE expects 16 kHz mono float32
         target_sr = 16000
         if sr != target_sr:
@@ -29,5 +47,7 @@ class CrepeEstimator(BaseF0Estimator):
             step_size=self.step_size_ms,
             model_capacity=self.model_capacity,
             viterbi=self.viterbi,
+            verbose=self.verbose,
         )
+        frequency_hz = np.where(confidence >= self.confidence_threshold, frequency_hz, np.nan)
         return F0Result(f0_hz=frequency_hz.astype(float), times_s=time_s.astype(float))

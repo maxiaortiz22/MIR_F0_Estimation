@@ -1,5 +1,4 @@
 from .BaseF0Estimator import BaseF0Estimator, F0Result
-from swift_f0 import SwiftF0, PitchResult  # noqa: F401  (for type hints / validation)
 import numpy as np
 
 
@@ -11,8 +10,14 @@ class SwiftF0Estimator(BaseF0Estimator):
         self.fmax_hz = fmax_hz
         self.confidence_threshold = confidence_threshold
 
-        # Keep a handle to the detector instance
-        from swift_f0 import SwiftF0  # type: ignore
+        try:
+            from swift_f0 import SwiftF0  # type: ignore
+        except ModuleNotFoundError as exc:
+            raise ModuleNotFoundError(
+                "SwiftF0Estimator requires the optional 'swift-f0' package. "
+                "Install it or use --method pyin/autocorr."
+            ) from exc
+
         self._detector = SwiftF0(
             fmin=self.fmin_hz,
             fmax=self.fmax_hz,

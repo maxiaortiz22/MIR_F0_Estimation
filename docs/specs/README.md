@@ -10,6 +10,7 @@ The goal is to keep the project explainable during interviews while avoiding ove
 - [01 Current Architecture](01-current-architecture.md)
 - [02 F0 Pipeline](02-f0-pipeline.md)
 - [03 Demo Roadmap](03-demo-roadmap.md)
+- [04 F0 Review](04-f0-review.md)
 
 ## SDD Working Rules
 

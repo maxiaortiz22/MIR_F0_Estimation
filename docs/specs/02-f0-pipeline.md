@@ -11,12 +11,18 @@ Estimate violin F0 and derive beginner-friendly intonation and segmentation metr
 - Channels: stereo is downmixed to mono.
 - Estimator: `autocorr`, `pyin`, `crepe`, or `swiftf0`.
 
+Current tracked violin validation clips:
+
+- `f0_estimation/data/A_STRING.wav`: open A string, A4, 440.00 Hz.
+- `f0_estimation/data/E_STRING.wav`: open E string, E5, 659.26 Hz.
+
 ## Outputs
 
 Current outputs:
 
 - Per-frame timestamp in seconds.
 - Per-frame F0 in Hz.
+- Compact median/p05/p95 F0 summary.
 - Reference-free intonation percentages within +/-25, +/-50, and +/-100 cents.
 - Nearest equal-tempered note labels.
 - Onset times.
@@ -67,21 +73,32 @@ Current smoke test:
 
 ```powershell
 conda activate musicdsp
-cd f0_estimation
-python main.py
+python f0_estimation/main.py --method swiftf0 --skip-onsets
+python f0_estimation/examples/open_string_check.py --method swiftf0
+python f0_estimation/examples/open_string_check.py --method pyin
+python f0_estimation/examples/open_string_check.py --method autocorr
 ```
 
 Expected behavior:
 
 - Script completes without exceptions.
-- SwiftF0 returns a non-empty F0 contour.
+- Each estimator returns a non-empty F0 contour.
+- A and E open-string checks pass within +/-50 cents.
 - Intonation metrics are printed.
 - Onset and phrase summaries are printed.
 
+Current observed open-string medians:
+
+| Method | A string | E string |
+| --- | ---: | ---: |
+| SwiftF0 | 437.89 Hz (-8.3 c) | 654.48 Hz (-12.6 c) |
+| pYIN | 442.55 Hz (+10.0 c) | 663.08 Hz (+10.0 c) |
+| Autocorr | 441.38 Hz (+5.4 c) | 662.21 Hz (+7.7 c) |
+
 ## Known Limitations
 
-- Current demo prints every voiced frame.
-- There is no root-level CLI yet.
-- Estimator parameters are not exposed as command-line arguments.
+- CSV/JSON exports are not implemented yet.
+- Diagnostic plots are not implemented yet.
+- Fine-grained estimator parameters are not exposed as command-line arguments.
 - Reference-free cents can look good even if the played note is wrong relative to a score.
 - Onset detection needs tuning per exercise type.

@@ -10,7 +10,7 @@ The primary score is shared with `MusicXML2MIDI`:
 MusicXML2MIDI/musicxml/DemoTwinkleShort.musicxml
 ```
 
-The older Bach prototype remains legacy material and is not the main demo path.
+The old long-form Bach prototype is intentionally not part of the tracked demo path; this spec focuses on the short shared score.
 
 ## Inputs
 
@@ -23,7 +23,7 @@ The older Bach prototype remains legacy material and is not the main demo path.
 Supported F0 CSV schemas:
 
 - `time_s,f0_hz` from `f0_estimation/main.py`
-- `t,f0_hz` from the older DTW prototype
+- `t,f0_hz` from simple external F0 exports
 
 ## Score Events
 

@@ -37,8 +37,6 @@ MusicXML2MIDI/
 
 dtw/
   align_demo.py
-  main.py
-  *.mxl
 
 docs/specs/
   Lightweight SDD documentation for the current system and roadmap.
@@ -129,7 +127,7 @@ This parses MusicXML with `music21`, writes MIDI, and renders WAV with FluidSynt
 python dtw/align_demo.py --score MusicXML2MIDI/musicxml/DemoTwinkleShort.musicxml --mode synthetic --plot
 ```
 
-The primary DTW demo uses the same short `DemoTwinkleShort.musicxml` fixture as `MusicXML2MIDI`. It parses score events, generates or loads a performed F0 contour, runs DTW, and writes per-note feedback to `dtw/output/`. The older `dtw/main.py` and Bach files are kept as legacy prototype material.
+The primary DTW demo uses the same short `DemoTwinkleShort.musicxml` fixture as `MusicXML2MIDI`. It parses score events, generates or loads a performed F0 contour, runs DTW, and writes per-note feedback to `dtw/output/`.
 
 ## Documentation
 

@@ -1,6 +1,0 @@
-Experimentación y validación del algoritmo, métricas y datasets de pruebas. En este caso para validar la fiabilidad de los skills de los niños
-Qué test y datasets vamos a hacer y usar
-El deployment y performance de mis modelos
-Métricas de p95
-Cómo convinar features de dsp con modelos de ML, tresholds, cuellos de botella, 
-Estudiar mejor el score alignment DTW

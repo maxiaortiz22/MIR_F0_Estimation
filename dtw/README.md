@@ -14,7 +14,7 @@ That keeps the interview story integrated:
 MusicXML -> reference note events -> synthetic/performed F0 -> DTW -> per-note feedback
 ```
 
-The older `dtw/main.py` and Bach assets are kept as legacy prototype material. They are not the primary demo path.
+The old long-form Bach prototype was removed from the tracked demo path so this folder stays focused on the short interview-ready alignment flow.
 
 ## Why Synthetic First
 

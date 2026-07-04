@@ -2,15 +2,18 @@
 
 ## Demo 1: F0 And Intonation
 
-Status: strongest current demo. Open-string validation is now in place for A4 and E5.
+Status: strongest current demo. Open-string validation and CSV/JSON/PNG exports are now in place for A4 and E5.
 
 Goal:
 
 Show a short violin recording, estimate F0, compute intonation metrics, detect onsets, and export a compact summary.
 
+Current implementation slice:
+
+- `--csv`, `--json`, and `--plot` options export frame data, summary metrics, and diagnostics.
+
 Next implementation slice:
 
-- Add `--csv`, `--json`, and `--plot` options.
 - Add a root-level package entrypoint after the script API stabilizes.
 - Add regression tests around the open-string checks.
 

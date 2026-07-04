@@ -31,6 +31,19 @@ python f0_estimation/main.py --method swiftf0 --skip-onsets
 python f0_estimation/main.py --method crepe --skip-onsets
 ```
 
+Generate interview-friendly artifacts:
+
+```powershell
+python f0_estimation/main.py --audio f0_estimation/data/A_STRING.wav --method swiftf0 --csv f0_estimation/outputs/A_STRING_swiftf0.csv --json f0_estimation/outputs/A_STRING_swiftf0.json --plot f0_estimation/outputs/A_STRING_swiftf0.png
+python f0_estimation/main.py --audio f0_estimation/data/E_STRING.wav --method swiftf0 --csv f0_estimation/outputs/E_STRING_swiftf0.csv --json f0_estimation/outputs/E_STRING_swiftf0.json --plot f0_estimation/outputs/E_STRING_swiftf0.png
+```
+
+The CSV contains one row per analysis frame with `time_s`, `f0_hz`, `nearest_note`, and `cents_error`. Unvoiced frames keep only `time_s`.
+
+The JSON contains audio metadata, method name, frame count, voicing rate, median/p05/p95 F0, reference-free intonation metrics, onset count, phrase count, and the detected onset/phrase times.
+
+The PNG plot shows waveform, F0 contour, and cents error in a single diagnostic image.
+
 If `--method crepe` reports that `crepe` is missing, PowerShell is probably using the base Conda Python instead of `musicdsp`. Check with:
 
 ```powershell
@@ -57,6 +70,7 @@ CREPE is significantly slower than SwiftF0, pYIN, and autocorrelation on CPU bec
 python f0_estimation/examples/open_string_check.py --method swiftf0
 python f0_estimation/examples/open_string_check.py --method pyin
 python f0_estimation/examples/open_string_check.py --method autocorr
+python f0_estimation/examples/open_string_check.py --method crepe
 ```
 
 Current observed results on the local `musicdsp` environment:

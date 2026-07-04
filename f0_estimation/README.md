@@ -18,6 +18,7 @@ The old `HB-*` clips were removed because they were not violin examples.
 From the repository root:
 
 ```powershell
+conda activate musicdsp
 python f0_estimation/main.py --method swiftf0
 ```
 
@@ -27,7 +28,28 @@ Useful variants:
 python f0_estimation/main.py --audio f0_estimation/data/E_STRING.wav --method pyin
 python f0_estimation/main.py --method autocorr --print-frames --max-frame-lines 20
 python f0_estimation/main.py --method swiftf0 --skip-onsets
+python f0_estimation/main.py --method crepe --skip-onsets
 ```
+
+If `--method crepe` reports that `crepe` is missing, PowerShell is probably using the base Conda Python instead of `musicdsp`. Check with:
+
+```powershell
+python -c "import sys; print(sys.executable)"
+```
+
+Expected environment for the full demo:
+
+```text
+C:\Users\maxia\anaconda3\envs\musicdsp\python.exe
+```
+
+You can also bypass activation explicitly:
+
+```powershell
+& C:\Users\maxia\anaconda3\envs\musicdsp\python.exe f0_estimation/main.py --method crepe --skip-onsets
+```
+
+CREPE is significantly slower than SwiftF0, pYIN, and autocorrelation on CPU because it runs a TensorFlow model.
 
 ## Run Open-String Checks
 

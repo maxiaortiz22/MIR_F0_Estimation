@@ -41,7 +41,8 @@ The current smoke test threshold is +/-50 cents with at least 20% voiced frames 
 
 - The current intonation score is reference-free. It cannot detect a musically wrong note if the performed pitch is itself stable and close to an equal-tempered note.
 - Open strings are easier than real violin phrases because they are sustained and monophonic.
-- CREPE has not yet been included in the quick validation table because it is slower and heavier.
+- CREPE is available in the `musicdsp` environment, but it is slower and heavier on CPU.
+- Running `python` from the base Conda environment will not find CREPE; activate `musicdsp` first.
 - No regression test framework is wired yet; the open-string checker is currently a runnable smoke test.
 - Onset detection still needs exercise-specific tuning.
 

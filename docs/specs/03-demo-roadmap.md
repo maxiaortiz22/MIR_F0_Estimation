@@ -2,7 +2,7 @@
 
 ## Demo 1: F0 And Intonation
 
-Status: strongest current demo. Open-string validation and CSV/JSON/PNG exports are now in place for A4 and E5.
+Status: strongest current demo. Open-string validation, a short Twinkle melody clip, and CSV/JSON/PNG exports are now in place.
 
 Goal:
 
@@ -11,6 +11,7 @@ Show a short violin recording, estimate F0, compute intonation metrics, detect o
 Current implementation slice:
 
 - `--csv`, `--json`, and `--plot` options export frame data, summary metrics, and diagnostics.
+- `TwinkleTwinkleLittleStar.wav` demonstrates a changing pitch contour beyond open-string checks.
 
 Next implementation slice:
 

@@ -10,6 +10,7 @@ Tracked validation clips:
 | --- | --- | --- |
 | `data/A_STRING.wav` | A4 | 440.00 Hz |
 | `data/E_STRING.wav` | E5 | 659.26 Hz |
+| `data/TwinkleTwinkleLittleStar.wav` | C5-A5 melody | multiple notes |
 
 The old `HB-*` clips were removed because they were not violin examples.
 
@@ -36,6 +37,7 @@ Generate interview-friendly artifacts:
 ```powershell
 python f0_estimation/main.py --audio f0_estimation/data/A_STRING.wav --method swiftf0 --csv f0_estimation/outputs/A_STRING_swiftf0.csv --json f0_estimation/outputs/A_STRING_swiftf0.json --plot f0_estimation/outputs/A_STRING_swiftf0.png
 python f0_estimation/main.py --audio f0_estimation/data/E_STRING.wav --method swiftf0 --csv f0_estimation/outputs/E_STRING_swiftf0.csv --json f0_estimation/outputs/E_STRING_swiftf0.json --plot f0_estimation/outputs/E_STRING_swiftf0.png
+python f0_estimation/main.py --audio f0_estimation/data/TwinkleTwinkleLittleStar.wav --method swiftf0 --onset-delta 0.12 --onset-wait 25 --csv f0_estimation/outputs/TwinkleTwinkleLittleStar_swiftf0.csv --json f0_estimation/outputs/TwinkleTwinkleLittleStar_swiftf0.json --plot f0_estimation/outputs/TwinkleTwinkleLittleStar_swiftf0.png
 ```
 
 The CSV contains one row per analysis frame with `time_s`, `f0_hz`, `nearest_note`, and `cents_error`. Unvoiced frames keep only `time_s`.
@@ -72,6 +74,22 @@ python f0_estimation/examples/open_string_check.py --method pyin
 python f0_estimation/examples/open_string_check.py --method autocorr
 python f0_estimation/examples/open_string_check.py --method crepe
 ```
+
+## Run Melodic Demo Check
+
+`TwinkleTwinkleLittleStar.wav` is a short rendered violin melody. It is useful when you want to show that the F0 pipeline follows a changing pitch contour instead of only validating one sustained open string.
+
+```powershell
+python f0_estimation/examples/twinkle_demo_check.py --method swiftf0
+```
+
+Current observed SwiftF0 result:
+
+- Duration: 12.841s at 44.1 kHz.
+- Voicing rate: 68.6%.
+- F0 p05/p95: 519.59 / 886.77 Hz.
+- Tuned onset count: 13 with `--onset-delta 0.12 --onset-wait 25`.
+- Detected nearest notes include C5, D5, E5, G5, and A5.
 
 Current observed results on the local `musicdsp` environment:
 

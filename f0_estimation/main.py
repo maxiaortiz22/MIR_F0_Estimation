@@ -73,6 +73,7 @@ def build_json_summary(
     intonation_metrics: IntonationMetrics | None,
     onsets: np.ndarray | None,
     phrases: list[tuple[float, float]] | None,
+    onset_params: dict[str, Any] | None,
 ) -> dict[str, Any]:
     intonation: dict[str, Any] | None = None
     if intonation_metrics is not None:
@@ -108,6 +109,7 @@ def build_json_summary(
         "segmentation": {
             "onset_count": int(onsets.size) if onsets is not None else None,
             "phrase_count": len(phrases) if phrases is not None else None,
+            "onset_params": onset_params,
             "onsets_s": [float(t) for t in onsets] if onsets is not None else None,
             "phrases_s": [{"start_s": float(start), "end_s": float(end)} for start, end in phrases]
             if phrases is not None
@@ -184,6 +186,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--print-unvoiced", action="store_true", help="Include unvoiced frames when printing frames.")
     parser.add_argument("--skip-onsets", action="store_true", help="Skip onset and phrase analysis.")
     parser.add_argument("--skip-intonation", action="store_true", help="Skip reference-free intonation metrics.")
+    parser.add_argument("--onset-delta", type=float, default=0.6, help="Onset peak-picking threshold.")
+    parser.add_argument("--onset-wait", type=int, default=30, help="Minimum onset peak distance in frames.")
     parser.add_argument("--max-frame-lines", type=int, default=40, help="Maximum frame lines printed with --print-frames.")
     parser.add_argument("--csv", type=Path, help="Write per-frame CSV with time_s, f0_hz, nearest_note, cents_error.")
     parser.add_argument("--json", type=Path, help="Write JSON summary for the demo run.")
@@ -243,9 +247,16 @@ def main(argv: list[str] | None = None) -> int:
 
     onsets = None
     phrases = None
+    onset_params = None
     if not args.skip_onsets:
         print("\n=== Onsets & Phrases ===")
-        seg = OnsetPhraseSegmenter(sr=sr, hop_length=512, onset_delta=0.6, onset_wait=30)
+        onset_params = {"hop_length": 512, "onset_delta": args.onset_delta, "onset_wait": args.onset_wait}
+        seg = OnsetPhraseSegmenter(
+            sr=sr,
+            hop_length=onset_params["hop_length"],
+            onset_delta=onset_params["onset_delta"],
+            onset_wait=onset_params["onset_wait"],
+        )
         onsets = seg.detect_onsets(y)
         phrases = seg.segment_phrases(y, method="silence", top_db=40.0)
         print("Onsets (s):", np.round(onsets, 3))
@@ -285,6 +296,7 @@ def main(argv: list[str] | None = None) -> int:
             intonation_metrics=intonation_metrics,
             onsets=onsets,
             phrases=phrases,
+            onset_params=onset_params,
         )
         write_json(args.json, payload)
         print(f"Wrote JSON: {args.json}")

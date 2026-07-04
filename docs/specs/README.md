@@ -11,6 +11,7 @@ The goal is to keep the project explainable during interviews while avoiding ove
 - [02 F0 Pipeline](02-f0-pipeline.md)
 - [03 Demo Roadmap](03-demo-roadmap.md)
 - [04 F0 Review](04-f0-review.md)
+- [05 MusicXML2MIDI](05-musicxml-midi.md)
 
 ## SDD Working Rules
 

@@ -19,17 +19,22 @@ Next implementation slice:
 
 ## Demo 2: MusicXML To Reference Audio
 
-Status: functional but needs cleanup.
+Status: CLI demo is now available with deterministic output paths and a short curated score.
 
 Goal:
 
 Convert a MusicXML score into MIDI and optionally render a reference WAV for alignment experiments.
 
+Current implementation slice:
+
+- CLI arguments cover score, SoundFont, sample rate, output directory, instrument name, and MIDI-only mode.
+- The SoundFont requirement is documented for WAV rendering.
+- A short curated Twinkle fixture is the default demo score; the older long Twinkle file is documented as unsuitable for interviews.
+
 Next implementation slice:
 
-- Add CLI arguments for score, SoundFont, sample rate, and output directory.
-- Document the SoundFont requirement.
-- Replace or fix the current Twinkle example if its duration remains unsuitable.
+- Export score note events as CSV/JSON for the alignment layer.
+- Add a tiny regression check around the curated MusicXML fixture duration.
 
 ## Demo 3: Score-Audio Alignment
 

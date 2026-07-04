@@ -33,17 +33,17 @@ The script currently depends on hardcoded paths and local SoundFont assets.
 
 ### DTW Alignment
 
-Path: `dtw/main.py`
+Path: `dtw/align_demo.py`
 
-This prototype:
+This demo:
 
-1. Parses a MusicXML reference into note events.
-2. Computes or loads an F0 time series.
-3. Resamples score and audio to a common grid.
-4. Uses DTW over cents distance.
-5. Emits per-note median cents and onset error estimates.
+1. Parses `MusicXML2MIDI/musicxml/DemoTwinkleShort.musicxml` into note events.
+2. Generates deterministic synthetic F0 or loads an F0 CSV.
+3. Resamples score and performance to a common grid.
+4. Uses DTW over clipped cents distance with a small temporal cost.
+5. Emits per-note onset, pitch, duration, and feedback label exports.
 
-The current version is exploratory and uses long recordings, so it is not yet the primary demo.
+The current version is the short interview demo. Long Bach alignment experiments are intentionally kept out of the tracked demo path.
 
 ## Data Policy
 
@@ -58,16 +58,16 @@ This keeps the repository lightweight and suitable for GitHub while leaving enou
 - F0 output is too verbose for a polished demo.
 - MusicXML rendering depends on untracked SoundFonts.
 - The Twinkle MusicXML example currently renders to an unexpectedly long MIDI.
-- DTW needs a short controlled alignment example before being shown as a polished result.
+- DTW has a short controlled alignment example; the next gap is making real-audio alignment more robust.
 
 ## Target Architecture
 
 The next architecture should expose root-level commands:
 
 ```powershell
-python -m mir_demo f0 --audio f0_estimation/data/HB-1.wav --method swiftf0
-python -m mir_demo musicxml --score MusicXML2MIDI/musicxml/TwinkleTwinkleLittleStar.mxl
-python -m mir_demo align --score dtw/bwv1001.mxl --audio path/to/audio.wav
+python -m mir_demo f0 --audio f0_estimation/data/A_STRING.wav --method swiftf0
+python -m mir_demo musicxml --score MusicXML2MIDI/musicxml/DemoTwinkleShort.musicxml
+python -m mir_demo align --score MusicXML2MIDI/musicxml/DemoTwinkleShort.musicxml --mode synthetic
 ```
 
 The internal package can then share common utilities for audio loading, F0 estimation, intonation metrics, and tabular exports.

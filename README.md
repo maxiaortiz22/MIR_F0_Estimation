@@ -73,6 +73,7 @@ Useful demo output commands:
 ```powershell
 python f0_estimation/main.py --audio f0_estimation/data/A_STRING.wav --method swiftf0 --csv f0_estimation/outputs/A_STRING_swiftf0.csv --json f0_estimation/outputs/A_STRING_swiftf0.json --plot f0_estimation/outputs/A_STRING_swiftf0.png
 python f0_estimation/main.py --audio f0_estimation/data/E_STRING.wav --method swiftf0 --csv f0_estimation/outputs/E_STRING_swiftf0.csv --json f0_estimation/outputs/E_STRING_swiftf0.json --plot f0_estimation/outputs/E_STRING_swiftf0.png
+python f0_estimation/main.py --audio f0_estimation/data/TwinkleTwinkleLittleStar.wav --method swiftf0 --onset-delta 0.12 --onset-wait 25 --csv f0_estimation/outputs/TwinkleTwinkleLittleStar_swiftf0.csv --json f0_estimation/outputs/TwinkleTwinkleLittleStar_swiftf0.json --plot f0_estimation/outputs/TwinkleTwinkleLittleStar_swiftf0.png
 ```
 
 Output artifacts:
@@ -100,6 +101,15 @@ The tracked violin validation clips are:
 
 - `A_STRING.wav`: expected A4, 440.00 Hz.
 - `E_STRING.wav`: expected E5, 659.26 Hz.
+- `TwinkleTwinkleLittleStar.wav`: short rendered violin melody for non-open-string F0 demos.
+
+The melodic demo check validates that Twinkle produces voiced F0 over several expected notes:
+
+```powershell
+python f0_estimation/examples/twinkle_demo_check.py --method swiftf0
+```
+
+Twinkle uses lower onset sensitivity than the open-string defaults because repeated melodic notes have softer attacks than the first note of a sustained open string.
 
 The former `HB-*` clips were removed because they were not violin recordings.
 

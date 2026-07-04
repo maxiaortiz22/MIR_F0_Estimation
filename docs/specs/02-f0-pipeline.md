@@ -15,6 +15,7 @@ Current tracked violin validation clips:
 
 - `f0_estimation/data/A_STRING.wav`: open A string, A4, 440.00 Hz.
 - `f0_estimation/data/E_STRING.wav`: open E string, E5, 659.26 Hz.
+- `f0_estimation/data/TwinkleTwinkleLittleStar.wav`: short rendered violin melody for a non-open-string demo.
 
 ## Outputs
 
@@ -72,7 +73,9 @@ Current smoke test:
 conda activate musicdsp
 python f0_estimation/main.py --method swiftf0 --csv f0_estimation/outputs/A_STRING_swiftf0.csv --json f0_estimation/outputs/A_STRING_swiftf0.json --plot f0_estimation/outputs/A_STRING_swiftf0.png
 python f0_estimation/main.py --audio f0_estimation/data/E_STRING.wav --method swiftf0 --csv f0_estimation/outputs/E_STRING_swiftf0.csv --json f0_estimation/outputs/E_STRING_swiftf0.json --plot f0_estimation/outputs/E_STRING_swiftf0.png
+python f0_estimation/main.py --audio f0_estimation/data/TwinkleTwinkleLittleStar.wav --method swiftf0 --onset-delta 0.12 --onset-wait 25 --csv f0_estimation/outputs/TwinkleTwinkleLittleStar_swiftf0.csv --json f0_estimation/outputs/TwinkleTwinkleLittleStar_swiftf0.json --plot f0_estimation/outputs/TwinkleTwinkleLittleStar_swiftf0.png
 python f0_estimation/examples/open_string_check.py --method swiftf0
+python f0_estimation/examples/twinkle_demo_check.py --method swiftf0
 python f0_estimation/examples/open_string_check.py --method pyin
 python f0_estimation/examples/open_string_check.py --method autocorr
 ```

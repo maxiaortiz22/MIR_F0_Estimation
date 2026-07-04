@@ -1,0 +1,29 @@
+name: musicdsp
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - fluidsynth
+  - pip:
+      - numpy>=2.3
+      - scipy>=1.16
+      - pandas>=2.3
+      - matplotlib>=3.10
+      - librosa>=0.11
+      - soundfile>=0.13
+      - music21>=9.9
+      - mido>=1.3
+      - fastdtw>=0.3
+      - dtw-python>=1.7
+      - crepe>=0.0.16
+      - torch>=2.9
+      - torchaudio>=2.9
+      - torchcrepe>=0.0.24
+      - opensmile>=2.6
+      - onnx>=1.19
+      - onnxruntime>=1.23
+      - scikit-learn>=1.7
+      - rich>=14.2
+      - git+https://github.com/lars76/swift_f0.git@64700fce8ef39c2970814bf427ac1d75a2f20d72
